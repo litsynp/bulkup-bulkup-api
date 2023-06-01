@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.db import models
 
 
@@ -12,8 +14,21 @@ class Diary(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class DiaryPhoto(models.Model):
+class DiaryImage(models.Model):
     id = models.AutoField(primary_key=True)
-    diary = models.ForeignKey(Diary, on_delete=models.CASCADE)
-    photo = models.ImageField(upload_to="diary_photos")
+    diary = models.ForeignKey("Diary", on_delete=models.CASCADE)
+    image = models.ForeignKey("Image", on_delete=models.CASCADE)
+    order = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+def get_image_path(instance, filename):
+    ext = filename.split(".")[-1]
+    filename = f"{uuid4()}.{ext}"
+    return f"images/{filename}"
+
+
+class Image(models.Model):
+    id = models.AutoField(primary_key=True)
+    url = models.ImageField(upload_to=get_image_path)
     created_at = models.DateTimeField(auto_now_add=True)
