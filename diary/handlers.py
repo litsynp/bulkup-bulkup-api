@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import List
 from django.shortcuts import get_object_or_404
 from ninja import File
@@ -14,6 +15,20 @@ from diary.views import DiaryCreateRequest, DiaryUpdateRequest, DiaryView, Image
 @paginate
 def list_diaries(request):
     return Diary.objects.all()
+
+
+@api.get("/diaries/stats")
+def get_diary_stats(request):
+    weekly_diaries = reversed(Diary.objects.filter().order_by("-created_at")[0:7])
+
+    return {
+        'type': "seven_days",
+        'diaries': list(map(lambda diary: {
+            'id': diary.id,
+            'weight': diary.weight,
+            'created_at': diary.created_at
+        }, weekly_diaries))
+    }
 
 
 @api.get("/diaries/{diary_id}", response=DiaryView)
